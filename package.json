@@ -1,0 +1,22 @@
+{
+  "name": "mixpanel-backfill-example",
+  "version": "1.0.0",
+  "description": "Backfill some user properties in Mixpanel",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mshelley-twg/mixpanel-backfill-example.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mshelley-twg/mixpanel-backfill-example/issues"
+  },
+  "homepage": "https://github.com/mshelley-twg/mixpanel-backfill-example#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
