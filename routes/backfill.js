@@ -20,7 +20,7 @@ router.post('/:userId', async (req, res, next) => {
     // Do not update "Last Seen" time for user
     $ignore_time: true,
     $set: {
-      customerLifetimeValue: 42
+      'Customer Lifetime Value': 42
     }
   }
 
