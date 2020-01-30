@@ -30,15 +30,20 @@ const getChangeRequestUrl = changeRequests => {
 
 // Backfill all users
 router.post('/', async (_, res, next) => {
-  // Create change requests
-  const changeRequests = [
-    createUserChangeRequest(1, {
+  // TODO: Fetch real changes for all users
+  const changesByUserId = {
+    1: {
       total_conversations: 42
-    }),
-    createUserChangeRequest(2, {
+    },
+    2: {
       total_conversations: 42
-    })
-  ]
+    }
+  }
+
+  // Create change requests for all users
+  const changeRequests = Object.entries(changesByUserId).map(([userId, changes]) => {
+    return createUserChangeRequest(userId, changes)
+  })
 
   // TODO: Batch requests to a max of 50
 
@@ -68,10 +73,13 @@ router.post('/', async (_, res, next) => {
 router.post('/:userId', async (req, res, next) => {
   const { userId } = req.params
 
-  // Create the change request
-  const changeRequest = createUserChangeRequest(userId, {
+  // TODO: Fetch real changes
+  const changes = {
     total_conversations: 42
-  })
+  }
+
+  // Create the change request
+  const changeRequest = createUserChangeRequest(userId, changes)
 
   try {
     const { data } = await axios.post(
