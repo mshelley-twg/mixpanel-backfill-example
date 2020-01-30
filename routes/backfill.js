@@ -41,9 +41,8 @@ router.post('/', async (_, res, next) => {
   }
 
   // Create change requests for all users
-  const changeRequests = Object.entries(changesByUserId).map(([userId, changes]) => {
-    return createUserChangeRequest(userId, changes)
-  })
+  const changeRequests = Object.entries(changesByUserId)
+    .map(([userId, changes]) => createUserChangeRequest(userId, changes))
 
   // TODO: Batch requests to a max of 50
 
