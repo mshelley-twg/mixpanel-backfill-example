@@ -54,8 +54,6 @@ router.post('/', async (_, res, next) => {
     const batches = chunk(changeRequests, CHANGE_REQUEST_BATCH_SIZE)
 
     batches.forEach(async batch => {
-      console.log(`Batch size = ${batch.length}`)
-
       // For multiple users, we must use application/x-www-form-urlencoded
       // https://developer.mixpanel.com/docs/http#section-batch-requests
       const { data } = await axios({
