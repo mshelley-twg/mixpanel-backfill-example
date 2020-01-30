@@ -1,8 +1,13 @@
 const express = require('express')
 const axios = require('axios')
 const base64 = require('base-64')
+const chunk = require('lodash/chunk')
 
 const router = express.Router()
+
+const CHANGE_REQUEST_BATCH_SIZE = 50
+// Ensure we have 3 batches for demonstration
+const TOTAL_USER_COUNT = (2 * CHANGE_REQUEST_BATCH_SIZE) + 1
 
 /**
  * @param {(number|string)} userId
@@ -31,12 +36,12 @@ const getChangeRequestUrl = changeRequests => {
 // Backfill all users
 router.post('/', async (_, res, next) => {
   // TODO: Fetch real changes for all users
-  const changesByUserId = {
-    1: {
-      total_conversations: 42
-    },
-    2: {
-      total_conversations: 42
+  const changesByUserId = {}
+
+  for (let userId = 0; userId < TOTAL_USER_COUNT; userId++) {
+    changesByUserId[userId] = {
+      // Just setting this value to userId for demonstration
+      total_conversations: userId
     }
   }
 
@@ -44,25 +49,31 @@ router.post('/', async (_, res, next) => {
   const changeRequests = Object.entries(changesByUserId)
     .map(([userId, changes]) => createUserChangeRequest(userId, changes))
 
-  // TODO: Batch requests to a max of 50
-
   try {
-    // For multiple users, we must use application/x-www-form-urlencoded
-    // https://developer.mixpanel.com/docs/http#section-batch-requests
-    const { data } = await axios({
-      url: getChangeRequestUrl(changeRequests),
-      method: 'POST',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded'
+    // Batch requests
+    const batches = chunk(changeRequests, CHANGE_REQUEST_BATCH_SIZE)
+
+    batches.forEach(async batch => {
+      console.log(`Batch size = ${batch.length}`)
+
+      // For multiple users, we must use application/x-www-form-urlencoded
+      // https://developer.mixpanel.com/docs/http#section-batch-requests
+      const { data } = await axios({
+        url: getChangeRequestUrl(batch),
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded'
+        }
+      })
+
+      // Mixpanel returns 1 for success, and 0 for failure
+      if (data === 0) {
+        throw new Error('Unable to update Mixpanel user profiles')
       }
     })
 
-    // Mixpanel returns 1 for success, and 0 for failure
-    if (data === 1) {
-      res.status(201).send('Successfully updated Mixpanel user profiles')
-    } else {
-      throw new Error('Unable to update Mixpanel user profiles')
-    }
+    // All chunks completed successfully
+    res.status(201).send('Successfully updated Mixpanel user profiles')
   } catch (error) {
     next(error)
   }
